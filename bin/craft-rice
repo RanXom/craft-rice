@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# craft-rice — portable Niri + Noctalia rice
+set -euo pipefail
+
+SELF_PATH="$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || printf '%s' "${BASH_SOURCE[0]}")"
+SELF_DIR="$(cd "$(dirname "$SELF_PATH")" && pwd)"
+SELF_ROOT="$(cd "$SELF_DIR/.." && pwd)"
+
+# When this is the copy installed under ~/.local/share/craft-rice, prefer the
+# repository recorded at install time (so `craft-rice install` still works).
+CR_ROOT="$SELF_ROOT"
+STATE_ROOT="${XDG_STATE_HOME:-$HOME/.local/state}/craft-rice"
+if [ ! -d "$SELF_ROOT/config/niri" ] && [ -f "$STATE_ROOT/repo.path" ]; then
+    recorded_repo="$(cat "$STATE_ROOT/repo.path" 2>/dev/null || true)"
+    if [ -n "$recorded_repo" ] && [ -d "$recorded_repo/config/niri" ]; then
+        CR_ROOT="$recorded_repo"
+    fi
+fi
+export CR_ROOT
+
+LIB_DIR="$SELF_ROOT/lib"
+[ -d "$LIB_DIR" ] || { printf 'craft-rice: lib/ not found next to %s\n' "$0" >&2; exit 1; }
+
+# shellcheck source=lib/common.sh
+. "$LIB_DIR/common.sh"
+# shellcheck source=lib/detect.sh
+. "$LIB_DIR/detect.sh"
+# shellcheck source=lib/packages.sh
+. "$LIB_DIR/packages.sh"
+# shellcheck source=lib/backup.sh
+. "$LIB_DIR/backup.sh"
+# shellcheck source=lib/render.sh
+. "$LIB_DIR/render.sh"
+# shellcheck source=lib/shell.sh
+. "$LIB_DIR/shell.sh"
+# shellcheck source=lib/assets.sh
+. "$LIB_DIR/assets.sh"
+# shellcheck source=lib/install.sh
+. "$LIB_DIR/install.sh"
+# shellcheck source=lib/uninstall.sh
+. "$LIB_DIR/uninstall.sh"
+# shellcheck source=lib/commands.sh
+. "$LIB_DIR/commands.sh"
+
+cleanup() {
+    install_abort 2>/dev/null || true
+    cr_unlock 2>/dev/null || true
+}
+trap cleanup EXIT
+trap 'exit 130' INT TERM HUP
+
+COMMAND="install"
+if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
+    COMMAND="$1"
+    shift
+fi
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --dry-run)        DRY_RUN=1 ;;
+        --yes|-y)         ASSUME_YES=1 ;;
+        --no-packages)    NO_PACKAGES=1 ;;
+        --minimal)        MINIMAL=1 ;;
+        --force)          FORCE=1 ;;
+        --purge-packages) PURGE_PACKAGES=1 ;;
+        --purge-state)    PURGE_STATE=1 ;;
+        --verbose|-v)     VERBOSE=1 ;;
+        -h|--help)        COMMAND="help" ;;
+        --install)        COMMAND="install" ;;
+        --uninstall)      COMMAND="uninstall" ;;
+        --status)         COMMAND="status" ;;
+        --doctor)         COMMAND="doctor" ;;
+        *) die "Unknown option: $1 (try --help)" ;;
+    esac
+    shift
+done
+
+# For status/doctor/uninstall, use the shell recorded at install time.
+if [ -f "$(cr_install_record)" ] && [ -z "${CRAFT_RICE_SHELL:-}" ]; then
+    recorded_shell="$(awk -F'\t' '$1=="meta" && $2=="shell" {print $3; exit}' "$(cr_install_record)")"
+    [ -n "$recorded_shell" ] && SHELL_NAME="$recorded_shell"
+fi
+if [ -z "${SHELL_NAME:-}" ]; then
+    SHELL_NAME="$(basename "${SHELL:-bash}")"
+    case "$SHELL_NAME" in
+        fish|zsh|bash) ;;
+        *) SHELL_NAME="bash" ;;
+    esac
+fi
+
+case "$COMMAND" in
+    install)   do_install ;;
+    uninstall) do_uninstall ;;
+    status)    cmd_status ;;
+    doctor)    cmd_doctor ;;
+    recover)   cmd_recover ;;
+    outputs)   cmd_outputs ;;
+    version)   cmd_version ;;
+    help)      cmd_help ;;
+    *)
+        cmd_help
+        exit 1
+        ;;
+esac

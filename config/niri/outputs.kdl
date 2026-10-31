@@ -1,0 +1,25 @@
+// craft-rice — monitor layout
+//
+// This file is intentionally empty. Niri will auto-detect every connected
+// monitor and use its preferred mode at scale 1.0.
+//
+// To pin a layout, either run:
+//
+//     craft-rice outputs
+//
+// which fills this file from the currently running Niri session, or write
+// blocks by hand:
+//
+//     output "eDP-1" {
+//         mode "2560x1600@165.019"
+//         scale 1.4
+//         transform "normal"
+//     }
+//
+//     output "HDMI-A-1" {
+//         mode "1920x1080@75.000"
+//         scale 1.0
+//         position x=2560 y=0
+//     }
+//
+// Run `niri msg outputs` to see the names, modes and current scales.

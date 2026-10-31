@@ -1,0 +1,16 @@
+# craft-rice — Noctalia custom templates
+#
+# Noctalia v5 re-renders these whenever the wallpaper palette changes.
+# Re-apply manually with:
+#
+#     noctalia msg templates-apply
+#
+# The built-in gtk3/gtk4/kitty/starship templates are enabled in
+# settings.toml under [theme.templates].builtin_ids.
+
+# Custom Niri theme template. This overrides the built-in niri template so
+# inactive borders use surface_variant instead of near-black.
+# `niri` is deliberately NOT in builtin_ids, so nothing clobbers this output.
+[theme.templates.user.niri]
+input_path  = "$XDG_CONFIG_HOME/noctalia/templates/niri.kdl"
+output_path = "$XDG_CONFIG_HOME/niri/noctalia.kdl"

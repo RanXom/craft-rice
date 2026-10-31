@@ -1,0 +1,18 @@
+// craft-rice — optional extra binds
+//
+// These are the personal app launchers that were removed from the core
+// config. They are NOT installed by default. If you want them, add this line
+// to the end of ~/.config/niri/config.kdl:
+//
+//     include "./extras.kdl"
+//
+// Then uncomment the binds you actually have installed.
+
+binds {
+    // Mod+B hotkey-overlay-title="Browser" { spawn "firefox"; }
+    // Mod+E hotkey-overlay-title="File Manager" { spawn "nautilus"; }
+    // Mod+O hotkey-overlay-title="Obsidian" { spawn "obsidian"; }
+    // Mod+Z hotkey-overlay-title="PDF Viewer" { spawn "zathura"; }
+    // Mod+P hotkey-overlay-title="Pomodoro" { spawn-sh "kitty @SHELL@ -i -c pomoru"; }
+    // Mod+M hotkey-overlay-title="Music Player" { spawn-sh "kitty @SHELL@ -i -c kew"; }
+}

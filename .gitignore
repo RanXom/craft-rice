@@ -1,0 +1,11 @@
+# craft-rice
+
+Niri + Noctalia rice that installs on any Linux distribution.
+
+See README.md for the one-page instructions.
+
+## Not committed
+*.log
+*.swp
+.DS_Store
+tests/tmp/

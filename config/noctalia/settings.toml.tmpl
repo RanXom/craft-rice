@@ -1,0 +1,95 @@
+config_version = 12
+
+[backdrop]
+enabled = true
+
+[bar]
+order = [ "top" ]
+
+    [bar.top]
+    background_opacity = 0.6
+    end = [
+        "tray",
+        "notifications",
+        "clipboard",
+        "network",
+        "bluetooth",
+        "volume",
+        "brightness",
+        "battery",
+        "control-center",
+        "session"
+    ]
+    font_family = "Monocraft"
+    margin_edge = 8
+    margin_ends = 10
+    radius = 8
+    radius_bottom_right = 12
+    start = [ "launcher", "wallpaper", "workspaces", "media" ]
+    widget_spacing = 8
+
+[control_center]
+width = 800
+
+[desktop_widgets]
+enabled = false
+
+[dock]
+icon_size = 32
+reserve_space = false
+smart_auto_hide = true
+
+[lockscreen_widgets]
+enabled = false
+schema_version = 2
+widget_order = [ ]
+
+    [lockscreen_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+[notification]
+background_opacity = 0.6
+
+[osd]
+background_opacity = 0.6
+
+[shell]
+font_family = "Monocraft"
+panel_anchor_bar = "top"
+popup_shadows = false
+settings_window_translucent = true
+
+    [shell.panel]
+    transparency_mode = "glass"
+
+    [shell.shadow]
+    direction = "center"
+
+[theme]
+community_palette = "Noctalia legacy"
+mode = "dark"
+source = "wallpaper"
+wallpaper_scheme = "m3-content"
+
+    [theme.templates]
+    builtin_ids = [ "gtk3", "gtk4", "kitty", "starship" ]
+
+[wallpaper]
+directory = "@WALLPAPER_DIR@"
+transition_on_startup = true
+
+    [wallpaper.automation]
+    enabled = true
+    interval_seconds = 3600
+    recursive = false
+
+    [wallpaper.default]
+    path = "@WALLPAPER_DEFAULT@"
+
+    [wallpaper.last]
+    path = "@WALLPAPER_DEFAULT@"
+
+[widget.media]
+scale = 0.9
