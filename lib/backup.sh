@@ -38,6 +38,9 @@ SHELL=$SHELL_NAME
 HOME=$HOME
 EOF
     BACKUP_ACTIVE=1
+    # Point at the in-progress backup so an interrupted install can be rolled
+    # back even if it never finished.
+    ln -sfn "$BACKUP_DIR" "$(cr_backup_root)/current"
     ok "Backup directory: $BACKUP_DIR"
 }
 
@@ -167,7 +170,6 @@ backup_finish() {
     [ "$BACKUP_ACTIVE" = "1" ] || return 0
     [ "$DRY_RUN" = "1" ] && return 0
     generate_restore_script
-    ln -sfn "$BACKUP_DIR" "$(cr_backup_root)/current"
     ok "Backed up $(wc -l <"$BACKUP_MANIFEST" | tr -d ' ') path(s)"
 }
 

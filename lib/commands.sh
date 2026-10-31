@@ -202,7 +202,11 @@ cmd_recover() {
     jp="$(journal_path)"
     record="$(cr_install_record)"
 
-    if [ -f "$jp" ] && [ -s "$jp" ]; then
+    if [ "$DRY_RUN" != "1" ]; then
+        cr_lock
+    fi
+
+    if [ -f "$jp" ] || [ -f "$(cr_state_dir)/installed.tsv.new" ]; then
         section "Interrupted install detected"
         if [ "$DRY_RUN" = "1" ]; then
             printf '%s[dry-run]%s would roll back the unfinished install\n' "$C_DIM" "$C_RESET"

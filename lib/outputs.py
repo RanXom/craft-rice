@@ -10,10 +10,14 @@ import sys
 
 
 def fmt_refresh(value):
+    """niri reports refresh_rate in millihertz (60002 = 60.002 Hz)."""
     try:
-        return f"{float(value):.3f}"
+        rate = float(value)
     except (TypeError, ValueError):
         return None
+    if rate >= 1000:  # mHz; anything smaller is already Hz
+        rate /= 1000.0
+    return f"{rate:.3f}"
 
 
 def main():
