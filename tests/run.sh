@@ -50,10 +50,13 @@ new_home() {
 }
 
 # run_cr HOME [args...]
+# GSETTINGS_BACKEND=memory keeps the GTK theme changes inside the test process,
+# so running the suite never touches the live desktop's dconf.
 run_cr() {
     local home="$1"; shift
     HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_DATA_HOME="$home/.local/share" \
     XDG_STATE_HOME="$home/.local/state" XDG_CACHE_HOME="$home/.cache" \
+    GSETTINGS_BACKEND=memory \
         "$ROOT/install.sh" "$@" >"$home/.last.log" 2>&1
     local rc=$?
     [ "$VERBOSE" = "1" ] && { printf '\n--- %s %s ---\n' "$home" "$*"; cat "$home/.last.log"; }
@@ -264,6 +267,7 @@ H="$(new_home interrupted)"
 printf '# rc\n' >"$H/.bashrc"
 HOME="$H" XDG_CONFIG_HOME="$H/.config" XDG_DATA_HOME="$H/.local/share" \
 XDG_STATE_HOME="$H/.local/state" XDG_CACHE_HOME="$H/.cache" \
+GSETTINGS_BACKEND=memory \
     "$ROOT/install.sh" install --yes --no-packages >"$H/.last.log" 2>&1 &
 PID=$!
 sleep 3
