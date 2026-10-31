@@ -33,6 +33,7 @@ install_shell() {
             target="$(cr_config_home)/fish/config.fish"
             backup_parent_if_symlink "$target"
             backup_path "$target"
+            backup_note_created_dir "$(dirname "$target")"
             run mkdir -p "$(dirname "$target")"
             run cp -- "$CR_ROOT/config/shell/fish/config.fish" "$target"
             journal_add file "$target"
@@ -48,6 +49,7 @@ install_shell() {
 
             # The helper is fully owned by craft-rice.
             backup_path "$helper"
+            backup_note_created_dir "$(dirname "$helper")"
             run mkdir -p "$(dirname "$helper")"
             run cp -- "$src" "$helper"
             journal_add file "$helper"

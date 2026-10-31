@@ -85,6 +85,7 @@ write_helper() {
 install_helper_scripts() {
     local bin
     bin="$(cr_home)/.local/bin"
+    backup_note_created_dir "$bin"
     run mkdir -p "$bin"
 
     write_helper "$bin/craft-rice-oniri" <<'EOF'
@@ -147,6 +148,7 @@ install_assets() {
 
     # Fonts
     backup_path "$fonts/Monocraft.ttc"
+    backup_note_created_dir "$fonts"
     run mkdir -p "$fonts"
     run cp -- "$CR_ROOT/assets/fonts/Monocraft-nerd-fonts-patched.ttc" "$fonts/Monocraft.ttc"
     journal_add file "$fonts/Monocraft.ttc"
@@ -156,6 +158,7 @@ install_assets() {
 
     # Icons
     backup_path "$icons/Pixel-Theme"
+    backup_note_created_dir "$icons"
     run mkdir -p "$icons"
     if [ "$DRY_RUN" = "1" ]; then
         printf '%s[dry-run]%s extract Pixel-Theme to %s\n' "$C_DIM" "$C_RESET" "$icons/Pixel-Theme"
@@ -188,6 +191,7 @@ install_assets() {
 
     # Wallpapers
     backup_path "$wallpapers"
+    backup_note_created_dir "$(dirname "$wallpapers")"
     run mkdir -p "$wallpapers"
     if [ "$DRY_RUN" = "1" ]; then
         printf '%s[dry-run]%s copy wallpapers to %s\n' "$C_DIM" "$C_RESET" "$wallpapers"
@@ -223,6 +227,7 @@ install_tool_copy() {
 
     backup_path "$tool"
     backup_path "$bin/craft-rice"
+    backup_note_created_dir "$bin"
 
     run mkdir -p "$tool/bin" "$tool/lib" "$bin"
     run cp -- "$CR_ROOT/bin/craft-rice" "$tool/bin/craft-rice"
@@ -269,4 +274,20 @@ apply_gtk_settings() {
     gset_record org.gnome.desktop.interface font-name "Monocraft 10"
     gset_record org.gnome.desktop.interface monospace-font-name "Monocraft 10"
     ok "Applied GTK icon, cursor and font settings"
+}
+
+# revert_gsettings_from RECORD — put the previous values back after a failed install.
+revert_gsettings_from() {
+    local record="$1"
+    [ -n "$record" ] && [ -f "$record" ] || return 0
+    have gsettings || return 0
+
+    local kind path old schema key
+    while IFS=$'\t' read -r kind path old; do
+        [ "$kind" = "gsetting" ] || continue
+        [ -n "$old" ] || continue
+        schema="${path%% *}"
+        key="${path#* }"
+        gsettings set "$schema" "$key" "$old" 2>/dev/null || true
+    done <"$record"
 }

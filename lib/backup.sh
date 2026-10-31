@@ -11,6 +11,7 @@ BACKUP_DIR=""
 BACKUP_MANIFEST=""
 BACKUP_INDEX=0
 BACKUP_ACTIVE=0
+CR_LAST_CONFLICT_DIR=""
 
 backup_begin() {
     local stamp
@@ -72,6 +73,19 @@ backup_path() {
     dest="$BACKUP_DIR/files/$BACKUP_INDEX"
     mv -- "$target" "$dest" || die "Could not move $target into the backup"
     debug "backed up $action: $target -> $dest"
+}
+
+# backup_note_created_dir TARGET
+# Record a directory craft-rice is about to create (as "absent"), so a failed
+# install removes it again. Does nothing when the directory already exists.
+backup_note_created_dir() {
+    local target="$1"
+    [ -n "$target" ] || return 0
+    [ -e "$target" ] && return 0
+    [ "$DRY_RUN" = "1" ] && return 0
+    BACKUP_INDEX=$((BACKUP_INDEX + 1))
+    printf '%s\t%s\t%s\n' "$BACKUP_INDEX" "absent" "$(tsv_escape "$target")" >>"$BACKUP_MANIFEST"
+    return 0
 }
 
 # backup_copy_path TARGET
@@ -270,6 +284,7 @@ restore_backup() {
 
     local conflict_dir
     conflict_dir="$(cr_state_dir)/conflicts/restore-$(date '+%Y%m%d-%H%M%S')-$$"
+    CR_LAST_CONFLICT_DIR="$conflict_dir"
     local restored=0
 
     # Reverse order, so nested paths unwind cleanly.
@@ -323,32 +338,28 @@ journal_add() {
     printf '%s\t%s\n' "$kind" "$(tsv_escape "$path")" >>"$(journal_path)"
 }
 
-journal_rollback() {
-    local jp
-    jp="$(journal_path)"
-    [ -f "$jp" ] || return 0
+# reverse_lines FILE — newest line first (tac, with a BSD tail -r fallback).
+reverse_lines() {
+    tac "$1" 2>/dev/null || tail -r "$1"
+}
 
-    warn "Rolling back this install..."
-    local kind path
-    # Remove files first, then directories deepest-first.
-    while IFS=$'\t' read -r kind path; do
-        [ "$kind" = "file" ] || continue
-        [ -e "$path" ] || [ -L "$path" ] || continue
-        rm -f -- "$path" || warn "Could not remove $path"
-    done < <(tac "$jp" 2>/dev/null || tail -r "$jp")
+# rollback_from_backup DIR
+#
+# Undo a partially finished install using its backup manifest:
+#   1. delete every path the manifest recorded as "absent" (we created it),
+#   2. move the originals back, moving anything we added aside.
+rollback_from_backup() {
+    local dir="$1" manifest="$1/manifest.tsv"
+    [ -n "$dir" ] && [ -f "$manifest" ] || return 1
 
-    # Fully owned trees are removed outright.
-    while IFS=$'\t' read -r kind path; do
-        [ "$kind" = "tree" ] || continue
-        [ -e "$path" ] || [ -L "$path" ] || continue
-        rm -rf -- "$path" || warn "Could not remove $path"
-    done < <(tac "$jp" 2>/dev/null || tail -r "$jp")
+    local idx action target
+    while IFS=$'\t' read -r idx action target; do
+        [ -n "$idx" ] || continue
+        [ "$action" = "absent" ] || continue
+        [ -e "$target" ] || [ -L "$target" ] || continue
+        rm -rf -- "$target" || warn "Could not remove $target"
+    done < <(reverse_lines "$manifest")
 
-    while IFS=$'\t' read -r kind path; do
-        [ "$kind" = "dir" ] || continue
-        [ -d "$path" ] || continue
-        rmdir -- "$path" 2>/dev/null || true
-    done < <(tac "$jp" 2>/dev/null || tail -r "$jp")
-
-    rm -f -- "$jp"
+    CR_RESTORE_SKIP=()
+    restore_backup "$dir"
 }

@@ -198,19 +198,30 @@ cmd_outputs() {
 # ---------------------------------------------------------------------------
 
 cmd_recover() {
-    local jp backup_dir latest
+    local jp backup_dir latest record
     jp="$(journal_path)"
+    record="$(cr_install_record)"
 
     if [ -f "$jp" ] && [ -s "$jp" ]; then
         section "Interrupted install detected"
-        warn "Rolling back the unfinished install and restoring backups."
-        journal_rollback
+        if [ "$DRY_RUN" = "1" ]; then
+            printf '%s[dry-run]%s would roll back the unfinished install\n' "$C_DIM" "$C_RESET"
+            return 0
+        fi
+
         backup_dir="$(readlink -f "$(cr_backup_root)/current" 2>/dev/null || true)"
         if [ -n "$backup_dir" ] && [ -d "$backup_dir" ]; then
-            CR_RESTORE_SKIP=()
-            restore_backup "$backup_dir"
+            warn "Rolling back the unfinished install and restoring backups."
+            if rollback_from_backup "$backup_dir"; then
+                [ -n "${CR_LAST_CONFLICT_DIR:-}" ] && rm -rf -- "$CR_LAST_CONFLICT_DIR" 2>/dev/null
+                rm -rf -- "$backup_dir" 2>/dev/null || true
+                rm -f -- "$(cr_backup_root)/current" 2>/dev/null || true
+            fi
+        else
+            warn "No backup for the interrupted install; removing its record only."
         fi
-        rm -f -- "$(cr_state_dir)/installed.tsv.new" 2>/dev/null || true
+
+        rm -f -- "$jp" "$record" "$(cr_state_dir)/installed.tsv.new" 2>/dev/null || true
         ok "Recovery complete."
         return 0
     fi

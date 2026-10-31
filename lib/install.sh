@@ -224,15 +224,25 @@ EOF
 # ---------------------------------------------------------------------------
 
 install_abort() {
-    if [ "$INSTALL_DONE" != "1" ] && [ "$BACKUP_ACTIVE" = "1" ]; then
-        journal_rollback
-        CR_RESTORE_SKIP=()
-        restore_backup "$BACKUP_DIR" || true
-        rm -f -- "$RECORD" 2>/dev/null || true
-        rm -f -- "$(cr_install_record)" 2>/dev/null || true
+    [ "$INSTALL_DONE" = "1" ] && return 0
+    [ "$BACKUP_ACTIVE" = "1" ] || return 0
+    [ "$DRY_RUN" = "1" ] && return 0
+
+    warn "Undoing the unfinished install..."
+    revert_gsettings_from "${RECORD:-}"
+
+    if rollback_from_backup "$BACKUP_DIR"; then
+        [ -n "${CR_LAST_CONFLICT_DIR:-}" ] && rm -rf -- "$CR_LAST_CONFLICT_DIR" 2>/dev/null
         rm -rf -- "$BACKUP_DIR" 2>/dev/null || true
         rm -f -- "$(cr_backup_root)/current" 2>/dev/null || true
+    else
+        warn "Could not fully undo the install. Backups are in $BACKUP_DIR"
     fi
+
+    rm -f -- "${RECORD:-/nonexistent}" 2>/dev/null || true
+    rm -f -- "$(cr_install_record)" 2>/dev/null || true
+    rm -f -- "$(journal_path)" 2>/dev/null || true
+    BACKUP_ACTIVE=0
 }
 
 # ---------------------------------------------------------------------------
@@ -327,6 +337,7 @@ do_install() {
     fi
 
     # Finalise the install record.
+    backup_note_created_dir "$HOME/Pictures/Screenshots"
     mkdir -p "$HOME/Pictures/Screenshots" 2>/dev/null || true
     record_dir "$HOME/Pictures/Screenshots"
 
