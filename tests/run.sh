@@ -121,6 +121,11 @@ assert_contains "$H/.config/niri/config.kdl" "kitty bash -i" "niri binds use bas
 
 if validate_config "$H/.config/niri/config.kdl"; then pass "niri config validates"; else fail "niri config validates"; fi
 
+# Refreshing the monitor layout must not leave junk next to the config.
+if run_cr "$H" outputs; then pass "outputs exits 0"; else fail "outputs exits 0"; fi
+assert_present "$H/.local/state/craft-rice/outputs" "output layout backup kept in state"
+assert_absent "$(find "$H/.config/niri" -maxdepth 1 -name 'outputs.kdl.bak.*' -print -quit)" "no backup litter in config dir"
+
 # skips in a non-tty
 if run_cr "$H" status; then pass "status exits 0"; else fail "status exits 0"; fi
 assert_contains "$H/.last.log" "Status: installed" "status reports installed"

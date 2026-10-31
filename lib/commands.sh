@@ -175,12 +175,15 @@ cmd_doctor() {
 # ---------------------------------------------------------------------------
 
 cmd_outputs() {
-    local dst
+    local dst bak_dir bak
     dst="$(cr_config_home)/niri/outputs.kdl"
+    bak_dir="$(cr_state_dir)/outputs"
     mkdir -p "$(dirname "$dst")"
 
-    if [ -f "$dst" ]; then
-        cp -p -- "$dst" "$dst.bak.$(date '+%Y%m%d-%H%M%S')"
+    if [ "$DRY_RUN" != "1" ] && [ -f "$dst" ]; then
+        mkdir -p "$bak_dir"
+        bak="$bak_dir/outputs.kdl.$(date '+%Y%m%d-%H%M%S')"
+        cp -p -- "$dst" "$bak" && info "Previous layout saved to $bak"
     fi
 
     if [ "$DRY_RUN" = "1" ]; then
