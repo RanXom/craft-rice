@@ -36,8 +36,26 @@ craft-rice --verbose doctor      # wrong: "doctor" is parsed as a flag
 | `doctor` | Check the live session: Niri, Noctalia, Kitty, fonts, icons, cursors, helper binaries, config syntax. **Exit 1** if anything blocking is wrong. |
 | `recover` | Roll back an interrupted install using its backup manifest. Safe to run when nothing is wrong. |
 | `outputs` | Read the current Niri outputs and rewrite `outputs.kdl` with the real mode and scale. Requires a running Niri session. |
+| `preview` | Render the bundled font and cursors to PNGs **without installing anything**. |
 | `version` | Print `craft-rice <version>`. |
 | `help` | Usage text. |
+
+### `preview` flow
+
+```
+craft-rice preview [font|cursor|all] [--out=DIR] [--individual]
+```
+
+1. Read `assets/fonts/Monocraft-nerd-fonts-patched.ttc` directly.
+2. Extract `assets/cursors/JuxCursor.tar.gz` into `DIR/cursor-files/`.
+3. Render `font-monocraft.png` and `cursors-sheet.png`.
+4. Print the paths.
+
+Default `DIR` is `~/.cache/craft-rice/preview`. `--individual` also writes one
+PNG per cursor into `DIR/cursors/`. No `installed.tsv`, config, font or cursor is
+written; uninstalling is not needed.
+
+Requires `python3` and Pillow (`python-pillow` / `python3-pil`).
 
 ### `install` flow
 
@@ -84,6 +102,8 @@ Uninstall refuses to run when `installed.tsv` is missing.
 | `--purge-packages` | On uninstall, also remove the rice's own packages. Asks twice and never removes shared dependencies. |
 | `--purge-state` | On uninstall, delete `~/.local/state/craft-rice` including **all** backups. Asks again. |
 | `--verbose`, `-v` | Print debug detail and every command that is run. |
+| `--out=DIR` | Preview only: write PNGs to `DIR` instead of the cache. |
+| `--individual` | Preview only: write one PNG per cursor into `DIR/cursors/`. |
 | `--help`, `-h` | Show usage. |
 
 `--dry-run` and `--yes` together are safe: the dry run never prompts.
@@ -99,7 +119,7 @@ Uninstall refuses to run when `installed.tsv` is missing.
 | `XDG_CONFIG_HOME` | Where configs go. Default: `~/.config`. |
 | `XDG_DATA_HOME` | Where fonts/icons/wallpapers/tool copy go. Default: `~/.local/share`. |
 | `XDG_STATE_HOME` | Where the install record, log and backups go. Default: `~/.local/state`. |
-| `XDG_CACHE_HOME` | Respected but not written to. |
+| `XDG_CACHE_HOME` | Where `preview` writes PNGs. Default: `~/.cache`. |
 | `NO_COLOR` | Disable colours. |
 | `HOME` | Everything is installed relative to this. Must be a real directory. |
 

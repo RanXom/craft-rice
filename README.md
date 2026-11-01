@@ -31,6 +31,37 @@ No root shell. No Nix. No system-wide config.
 
 ---
 
+## Want a look first?
+
+```sh
+./install.sh preview
+```
+
+It writes two PNGs to `~/.cache/craft-rice/preview/` and prints their paths:
+
+- `font-monocraft.png` — the bundled font in every weight
+- `cursors-sheet.png` — the cursor theme, with hotspots marked
+
+**Nothing is installed.** The files are read straight out of `assets/`.
+
+Want one PNG per cursor too?
+
+```sh
+./install.sh preview cursor --individual
+```
+
+Preview needs `python3` and the Pillow package. If it is missing, install
+`python-pillow` / `python3-pil` with your distro's package manager. If you only
+want to see the font and cannot install Pillow, `pango-view` can render it:
+
+```sh
+printf '<fontconfig><dir>%s/assets/fonts</dir></fontconfig>' "$PWD" > /tmp/craft-fonts.conf
+FONTCONFIG_FILE=/tmp/craft-fonts.conf pango-view --no-display \
+  --font='Monocraft 32' --text='Monocraft 0123 != ->' --output=/tmp/monocraft.png
+```
+
+---
+
 ## If it asks about your shell
 
 You will only see this if your login shell is **zsh** or **bash**:

@@ -260,6 +260,32 @@ cmd_recover() {
 }
 
 # ---------------------------------------------------------------------------
+# Preview bundled assets without installing them
+# ---------------------------------------------------------------------------
+
+cmd_preview() {
+    local mode="${PREVIEW_MODE:-all}" out tool
+    tool="$CR_ROOT/tools/preview_assets.py"
+    out="${PREVIEW_OUT:-$(cr_cache_home)/craft-rice/preview}"
+
+    [ -f "$tool" ] || die "Preview tool not found at $tool"
+    have python3 || die "Preview needs python3 (and the python Pillow package)."
+
+    local args=("$mode" "--out" "$out")
+    [ "$PREVIEW_INDIV" = "1" ] && args+=(--individual)
+
+    python3 "$tool" "${args[@]}"
+
+    printf '\nView them with:\n'
+    if [ "$mode" != "cursor" ]; then
+        printf '  xdg-open %q\n' "$out/font-monocraft.png"
+    fi
+    if [ "$mode" != "font" ]; then
+        printf '  xdg-open %q\n' "$out/cursors-sheet.png"
+    fi
+}
+
+# ---------------------------------------------------------------------------
 # Help
 # ---------------------------------------------------------------------------
 
@@ -277,6 +303,8 @@ ${C_BOLD}COMMANDS${C_RESET}
   doctor         Check the session for problems
   recover        Roll back an interrupted install, or restore a backup
   outputs        Snapshot the current monitor layout into outputs.kdl
+  preview        Render the bundled font and cursors without installing them
+                 preview [font|cursor|all] [--out=DIR] [--individual]
   version        Print the version
   help           This text
 
@@ -297,6 +325,7 @@ ${C_BOLD}ENVIRONMENT${C_RESET}
 ${C_BOLD}EXAMPLES${C_RESET}
   ./install.sh --dry-run
   ./install.sh install --no-packages
+  ./install.sh preview                 # font + cursors, installs nothing
   craft-rice doctor
   craft-rice uninstall
 EOF

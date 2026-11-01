@@ -16,6 +16,9 @@ FORCE="${FORCE:-0}"
 PURGE_PACKAGES="${PURGE_PACKAGES:-0}"
 PURGE_STATE="${PURGE_STATE:-0}"
 VERBOSE="${VERBOSE:-0}"
+PREVIEW_MODE="${PREVIEW_MODE:-}"
+PREVIEW_OUT="${PREVIEW_OUT:-}"
+PREVIEW_INDIV="${PREVIEW_INDIV:-0}"
 
 # ---------------------------------------------------------------------------
 # Paths

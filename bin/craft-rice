@@ -70,6 +70,17 @@ while [ "$#" -gt 0 ]; do
         --uninstall)      COMMAND="uninstall" ;;
         --status)         COMMAND="status" ;;
         --doctor)         COMMAND="doctor" ;;
+        --out=*)          PREVIEW_OUT="${1#--out=}" ;;
+        --out)
+            [ "$#" -ge 2 ] || die "--out needs a directory"
+            PREVIEW_OUT="$2"
+            shift
+            ;;
+        --individual)     PREVIEW_INDIV=1 ;;
+        font|cursor|all)
+            [ "$COMMAND" = "preview" ] || die "Unknown argument: $1 (try --help)"
+            PREVIEW_MODE="$1"
+            ;;
         *) die "Unknown option: $1 (try --help)" ;;
     esac
     shift
@@ -95,6 +106,7 @@ case "$COMMAND" in
     doctor)    cmd_doctor ;;
     recover)   cmd_recover ;;
     outputs)   cmd_outputs ;;
+    preview)   cmd_preview ;;
     version)   cmd_version ;;
     help)      cmd_help ;;
     *)

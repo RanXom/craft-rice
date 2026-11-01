@@ -229,10 +229,11 @@ install_tool_copy() {
     backup_path "$bin/craft-rice"
     backup_note_created_dir "$bin"
 
-    run mkdir -p "$tool/bin" "$tool/lib" "$bin"
+    run mkdir -p "$tool/bin" "$tool/lib" "$tool/tools" "$bin"
     run cp -- "$CR_ROOT/bin/craft-rice" "$tool/bin/craft-rice"
     run cp -- "$CR_ROOT"/lib/*.sh "$tool/lib/"
     run cp -- "$CR_ROOT/lib/outputs.py" "$tool/lib/"
+    run cp -- "$CR_ROOT/tools/preview_assets.py" "$tool/tools/preview_assets.py"
     run chmod 755 "$tool/bin/craft-rice"
     run ln -sfn "$tool/bin/craft-rice" "$bin/craft-rice"
 

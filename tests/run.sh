@@ -85,7 +85,12 @@ if ok python3 -m py_compile "$ROOT/lib/outputs.py"; then
 else
     fail "python compile outputs.py"
 fi
-rm -rf "$ROOT/lib/__pycache__"
+if ok python3 -m py_compile "$ROOT/tools/preview_assets.py"; then
+    pass "python compile preview_assets.py"
+else
+    fail "python compile preview_assets.py"
+fi
+rm -rf "$ROOT/lib/__pycache__" "$ROOT/tools/__pycache__"
 
 # ---------------------------------------------------------------------------
 head1 "2. Fresh install (bash)"
@@ -295,7 +300,25 @@ assert_not_contains "$H/.config/niri/config.kdl" "xray" "blur layer rules stripp
 if validate_config "$H/.config/niri/config.kdl"; then pass "stripped config validates"; else fail "stripped config validates"; fi
 
 # ---------------------------------------------------------------------------
-head1 "13. Uninstall when not installed"
+head1 "13. Preview renders assets without installing them"
+# ---------------------------------------------------------------------------
+H="$(new_home preview)"
+if python3 -c 'import PIL' >/dev/null 2>&1; then
+    run_cr "$H" preview --out="$H/look"
+    assert_present "$H/look/font-monocraft.png" "font preview PNG written"
+    assert_present "$H/look/cursors-sheet.png" "cursor sheet PNG written"
+    assert_absent "$H/.local/state/craft-rice/installed.tsv" "preview wrote no install record"
+    assert_absent "$H/.config/niri" "preview wrote no config"
+    assert_absent "$H/.local/share/fonts" "preview installed no font"
+
+    run_cr "$H" preview cursor --out="$H/one" --individual
+    assert_present "$H/one/cursors/left_ptr.png" "individual cursor PNG written"
+else
+    pass "preview skipped (Pillow not installed)"
+fi
+
+# ---------------------------------------------------------------------------
+head1 "14. Uninstall when not installed"
 # ---------------------------------------------------------------------------
 H="$(new_home empty)"
 run_cr "$H" uninstall --yes; e=$?
