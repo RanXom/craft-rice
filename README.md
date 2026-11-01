@@ -3,6 +3,8 @@
 A pixel-art **Niri + Noctalia** desktop that installs on almost any Linux
 distribution.
 
+![Screenshot](assets/Screenshot.png)
+
 One script. It backs up every file it touches. Uninstall puts your originals
 back.
 
