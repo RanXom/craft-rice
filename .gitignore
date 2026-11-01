@@ -1,11 +1,11 @@
 # craft-rice
 
-Niri + Noctalia rice that installs on any Linux distribution.
-
-See README.md for the one-page instructions.
-
-## Not committed
+# Logs, editor droppings, Python bytecode
 *.log
 *.swp
 .DS_Store
+__pycache__/
+*.pyc
+
+# Local test output
 tests/tmp/

@@ -68,9 +68,12 @@ sudo dnf install niri kitty noctalia xwayland-satellite polkit-gnome \
   xdg-desktop-portal xdg-desktop-portal-gtk mesa starship fastfetch
 ```
 
+Noctalia is in the default Fedora repositories from **Fedora 44** onward.
 Nobara, RHEL, CentOS Stream, Rocky and Alma are treated as the same family. On
 older RHEL-family systems some of these are only in EPEL; enable it first if
-the install fails.
+the install fails. If Noctalia is not packaged for your release, use the
+[official installation guide](https://docs.noctalia.dev/noctalia/getting-started/installation/)
+and then re-run with `--no-packages`.
 
 ---
 
@@ -96,6 +99,12 @@ If your release does not have `niri` yet, the installer will say so. You can
 still install the dotfiles with `./install.sh --no-packages` once Niri is
 available.
 
+The GTK 3 runtime is `libgtk-3-0t64` on current Debian/Ubuntu releases and
+`libgtk-3-0` on older ones. The installer's package map uses the older name;
+install the `t64` package by hand if that is what your release provides.
+`starship` is not in every Debian/Ubuntu release either — use your distro's
+package if it exists, or the upstream installer.
+
 ---
 
 ## openSUSE
@@ -108,11 +117,25 @@ sudo zypper install niri kitty noctalia xwayland-satellite polkit-gnome \
 ```
 
 Tumbleweed moves faster than Leap. On Leap, check the Niri version with
-`niri --version`; blur is stripped automatically below 26.04.
+`niri --version`; blur is stripped automatically below 26.04. Noctalia v5 is
+available for Tumbleweed and Slowroll; Leap 16 cannot build it because its
+`sdbus-c++` is too old. Use the [official guide](https://docs.noctalia.dev/noctalia/getting-started/installation/)
+and `--no-packages` there.
 
 ---
 
 ## Void Linux
+
+Noctalia is **not** in the main Void repository. Add its third-party
+`UniversalRepository` first:
+
+```sh
+echo 'repository=https://universalrepo.pages.dev/void' |
+  sudo tee /etc/xbps.d/10-universalrepository.conf
+sudo xbps-install -S
+```
+
+Then install:
 
 ```sh
 sudo xbps-install -S niri kitty noctalia xwayland-satellite polkit-gnome \
@@ -123,6 +146,7 @@ sudo xbps-install -S niri kitty noctalia xwayland-satellite polkit-gnome \
 
 Some packages live in `void-repo-nonfree` or `void-repo-multilib`. Enable the
 repositories with `xbps-install -S void-repo-nonfree` if a package is missing.
+Review third-party repositories before enabling them.
 
 ---
 
@@ -140,8 +164,12 @@ sudo apk add niri kitty xwayland-satellite polkit-gnome \
   gtk+3.0
 ```
 
-Niri and Noctalia may be in `testing`. If they are not packaged for your
-release, install the dotfiles with `--no-packages` and build them yourself.
+Noctalia is not in Alpine's main repositories. It comes from the third-party
+`UniversalRepository`, which currently supports **Alpine Edge only**; follow
+the [official Alpine instructions](https://docs.noctalia.dev/noctalia/getting-started/installation/#alpine)
+before running the command above. Niri may be in `testing`. If a package is
+missing for your release, install the dotfiles with `--no-packages` and build
+that package yourself.
 
 ---
 
@@ -171,11 +199,22 @@ Gentoo uses category/package atoms:
 | Starship | `app-shells/starship` |
 | Fastfetch | `app-misc/fastfetch` |
 
-Noctalia is not in the Gentoo tree. Build it from source or use a binary
-release, then run `./install.sh --no-packages`.
+Noctalia is in the [GURU overlay](https://wiki.gentoo.org/wiki/Project:GURU)
+as `gui-apps/noctalia`, not in the main Gentoo tree. Enable and sync GURU,
+unmask the package, then emerge it:
+
+```sh
+echo 'gui-apps/noctalia ~amd64' |
+  sudo tee /etc/portage/package.accept_keywords/noctalia
+sudo emerge --ask gui-apps/noctalia
+```
+
+If you do not use overlays, build it from source or use a binary release and
+run `./install.sh --no-packages`.
 
 The installer uses `portageq` when available, so already-installed atoms are
-detected without merging anything.
+detected without merging anything. It cannot install `gui-apps/noctalia` for
+you because that atom only exists once GURU is enabled.
 
 ---
 

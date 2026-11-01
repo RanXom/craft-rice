@@ -156,7 +156,8 @@ The marked block is:
 # <<< craft-rice <<<
 ```
 
-Uninstall removes only those three lines. Edits outside the block are kept.
+Uninstall removes only that block (all four lines). Edits outside the block are
+kept.
 
 `chsh` is never run for you.
 
@@ -173,7 +174,7 @@ Paths use the XDG roots.
 | `~/.config/niri/outputs.kdl` | Generated from the live session, or copied sample |
 | `~/.config/niri/extras.kdl`, `noctalia.kdl` | Managed files |
 | `~/.config/noctalia/settings.toml` | Rendered (paths and wallpaper) |
-| `~/.config/noctalia/plugins/` | 7 bundled plugins |
+| `~/.config/noctalia/plugins/` | 7 bundled plugins, for Noctalia 4.x only (Noctalia 5 ignores them) |
 | `~/.config/noctalia/{config.toml,plugins.json,templates.toml,templates/niri.kdl}` | Managed files |
 | `~/.config/kitty/kitty.conf`, `themes/noctalia.conf` | Kitty config + fallback theme |
 | `~/.config/fastfetch/config.jsonc`, `logo.txt` | Rendered + logo |
@@ -181,6 +182,7 @@ Paths use the XDG roots.
 | `~/.config/craft-rice/shell.{zsh,bash}` | Only for zsh/bash |
 | `~/.config/fish/config.fish` | Only for fish |
 | `~/.local/share/fonts/Monocraft.ttc` | Font |
+| `~/.local/share/doc/craft-rice/` | License texts for the bundled font and `oniri` |
 | `~/.local/share/icons/Pixel-Theme/` | Icon theme |
 | `~/.local/share/icons/JuxCursor/` | Cursor theme |
 | `~/.local/share/backgrounds/craft-rice/` | 10 wallpapers |
@@ -341,7 +343,7 @@ the PID. If that process is gone, `recover` takes it over.
 ## Tests
 
 ```sh
-./tests/run.sh        # 13 scenarios, ~1 minute
+./tests/run.sh        # 14 scenarios, ~1 minute
 ./tests/run.sh -v     # keep temp dirs and print logs
 ```
 
@@ -349,7 +351,7 @@ The suite uses throwaway `HOME` and XDG directories under
 `/tmp/craft-rice-tests`, never installs packages, and covers: syntax,
 fresh install, uninstall/restore, reinstall, dry run, zsh block editing, fish,
 paths with spaces, symlinked config dirs, failed-install rollback, interrupted
-install + recovery, blur stripping, and uninstall-when-absent.
+install + recovery, blur stripping, offline preview, and uninstall-when-absent.
 
 ---
 
@@ -368,6 +370,7 @@ lib/install.sh        install orchestration
 lib/uninstall.sh      uninstall orchestration
 lib/commands.sh       status, doctor, recover, outputs, help
 lib/outputs.py        Niri output → KDL
+tools/preview_assets.py  offline font/cursor preview renderer
 config/               shipped dotfiles and templates
 assets/               fonts, cursors, icons, wallpapers, oniri
 tests/run.sh          test suite

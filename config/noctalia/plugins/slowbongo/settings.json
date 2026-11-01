@@ -7,8 +7,5 @@
   "raveMode": false,
   "tappyMode": true,
   "useMprisFilter": false,
-  "inputDevices": [
-    "/dev/input/event18",
-    "/dev/input/event6"
-  ]
+  "inputDevices": []
 }

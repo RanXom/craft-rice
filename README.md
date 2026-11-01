@@ -81,8 +81,9 @@ Already using Fish? It just installs. To skip the question entirely:
 CRAFT_RICE_SHELL=bash ./install.sh     # or zsh, or fish
 ```
 
-Your previous Fish setup is not lost: the rice config sources
-`~/.fish_profile` if that file exists.
+Your previous `~/.config/fish/config.fish` is backed up, not merged. The new
+file sources `~/.fish_profile`; put your custom fish settings there (or copy
+them out of the backup) if you want to keep them.
 
 ---
 
@@ -131,6 +132,11 @@ craft-rice uninstall --purge-state
 | Wallpapers | 10 pixel-art images, installed and wired up |
 | `oniri` | Workspace/monitor helper for Niri (x86_64) |
 
+> **Noctalia 5 note:** the seven bundled plugins were written for Noctalia 4.x.
+> Noctalia 5 ignores them and uses its own plugin store instead (Bongo Cat,
+> screen recorder, wallpapers and more are available there). The extra files
+> are harmless; see [docs/CREDITS.md](docs/CREDITS.md).
+
 Keybinds worth remembering:
 
 | Keys | Action |
@@ -142,7 +148,8 @@ Keybinds worth remembering:
 | `Super+Q` | Close window |
 | `Super+Shift+Slash` | Show every keybind |
 
-Everything is plain text under `~/.config`. Edit it with your editor.
+The configs are plain text under `~/.config`. Edit them with your editor
+(some bundled Noctalia plugin files are images, audio or fonts).
 
 ---
 
@@ -179,7 +186,7 @@ Full reference: [docs/MANUAL.md](docs/MANUAL.md).
 
 ```
 ~/.config/niri                 Niri config, animations, outputs
-~/.config/noctalia             Noctalia settings and 7 bundled plugins
+~/.config/noctalia             Noctalia settings (plus 7 legacy 4.x plugins)
 ~/.config/kitty                Terminal config and theme
 ~/.config/fastfetch            Greeting
 ~/.config/starship.toml        Prompt
@@ -241,3 +248,7 @@ install.
 
 MIT for the installer and configs. Bundled fonts, icons, cursors, binaries and
 wallpapers keep their own licenses — see [docs/CREDITS.md](docs/CREDITS.md).
+
+**Do not publish a public fork before reading the asset notes in
+[docs/CREDITS.md](docs/CREDITS.md).** Several bundled art assets do not have a
+declared redistribution license.

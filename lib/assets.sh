@@ -156,6 +156,20 @@ install_assets() {
     record_dir "$fonts"
     ok "Installed Monocraft"
 
+    # License texts for the assets we redistribute.
+    local doc="$data/doc/craft-rice"
+    backup_path "$doc/Monocraft-OFL.txt"
+    backup_path "$doc/oniri-GPL-3.0.txt"
+    backup_note_created_dir "$doc"
+    run mkdir -p "$doc"
+    run cp -- "$CR_ROOT/assets/fonts/OFL.txt" "$doc/Monocraft-OFL.txt"
+    run cp -- "$CR_ROOT/assets/bin/LICENSE-GPL-3.0.txt" "$doc/oniri-GPL-3.0.txt"
+    journal_add file "$doc/Monocraft-OFL.txt"
+    journal_add file "$doc/oniri-GPL-3.0.txt"
+    record_managed "$doc/Monocraft-OFL.txt"
+    record_managed "$doc/oniri-GPL-3.0.txt"
+    record_dir "$doc"
+
     # Icons
     backup_path "$icons/Pixel-Theme"
     backup_note_created_dir "$icons"
